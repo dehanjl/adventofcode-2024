@@ -1,40 +1,40 @@
 use adventofcode_2024::runner;
+use itertools::Itertools;
 
-fn parse_input(input: &str, replace: bool) -> u32 {
+fn parse_input(input: &str) -> (Vec<i32>, Vec<i32>) {
     input
         .lines()
-        .filter(|line| !line.is_empty())
         .map(|line| {
-            if replace {
-                line.to_string()
-                    .replace("one", "one1one")
-                    .replace("two", "two2two")
-                    .replace("three", "three3three")
-                    .replace("four", "four4four")
-                    .replace("five", "five5five")
-                    .replace("six", "six6six")
-                    .replace("seven", "seven7seven")
-                    .replace("eight", "eight8eight")
-                    .replace("nine", "nine9nine")
-            } else {
-                line.to_string()
-            }
+            line.split_ascii_whitespace()
+                .map(|num| num.parse::<i32>().unwrap())
+                .collect_tuple()
+                .unwrap()
         })
-        .map(|line| {
-            line.chars()
-                .filter_map(|c| c.to_digit(10))
-                .collect::<Vec<u32>>()
-        })
-        .map(|vec| 10 * vec.first().unwrap() + vec.last().unwrap())
-        .sum()
+        .unzip()
 }
 
 fn part1(input: &str) {
-    println!("Day 1 Part 1: {}", parse_input(input, false));
+    let (l, r) = parse_input(input);
+
+    let total_distance = l
+        .into_iter()
+        .sorted()
+        .zip(r.into_iter().sorted())
+        .fold(0, |acc, (a, b)| acc + (a - b).abs());
+
+    println!("Day 1 Part 1: {}", total_distance);
 }
 
 fn part2(input: &str) {
-    println!("Day 1 Part 2: {}", parse_input(input, true));
+    let (l, r) = parse_input(input);
+    let r_counts = r.into_iter().counts();
+
+    let similarity_score: i32 = l
+        .into_iter()
+        .filter_map(|x| r_counts.get(&x).map(|&count| count as i32 * x))
+        .sum();
+
+    println!("Day 1 Part 2: {}", similarity_score);
 }
 
 fn main() {
