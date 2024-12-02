@@ -1,5 +1,6 @@
 use adventofcode_2024::runner;
 use itertools::{any, Itertools};
+use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
 
 fn parse_input(input: &str) -> Vec<Vec<i32>> {
     input
@@ -33,7 +34,7 @@ fn part1(input: &str) {
 
 fn part2(input: &str) {
     let safe_count = parse_input(input)
-        .iter()
+        .par_iter()
         .filter(|line| {
             safe_check(line)
                 || any(
