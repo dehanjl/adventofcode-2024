@@ -5,11 +5,9 @@ fn part1(input: &str) {
     let re = Regex::new(r"mul\((\d{1,3}),(\d{1,3})\)").unwrap();
     let total = re
         .captures_iter(input)
-        .map(|cap| {
-            (
-                cap[1].parse::<i32>().unwrap(),
-                cap[2].parse::<i32>().unwrap(),
-            )
+        .map(|caps| {
+            let (_, [l, r]) = caps.extract();
+            (l.parse::<i32>().unwrap(), r.parse::<i32>().unwrap())
         })
         .fold(0, |acc, (l, r)| acc + l * r);
 
