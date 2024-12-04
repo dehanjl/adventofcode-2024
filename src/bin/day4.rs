@@ -40,16 +40,12 @@ fn get_words(grid: &Grid<char>, r: usize, c: usize) -> Vec<String> {
 
 fn part1(input: &str) {
     let grid = parse_input(input);
-    let mut total_xmas = 0;
-    for (r, c) in (0..grid.rows()).cartesian_product(0..grid.cols()) {
-        if grid[(r, c)] != 'X' {
-            continue;
-        }
-        total_xmas += get_words(&grid, r, c)
-            .iter()
-            .filter(|word| *word == "XMAS")
-            .count();
-    }
+    let total_xmas = (0..grid.rows())
+        .cartesian_product(0..grid.cols())
+        .filter(|&(r, c)| grid[(r, c)] == 'X')
+        .flat_map(|(r, c)| get_words(&grid, r, c))
+        .filter(|word| word == "XMAS")
+        .count();
 
     println!("Day 4 Part 1: {:?}", total_xmas);
 }
