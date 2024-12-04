@@ -11,7 +11,7 @@ fn part1(input: &str) {
         })
         .fold(0, |acc, (l, r)| acc + l * r);
 
-    println!("Day 1 Part 1: {}", total);
+    println!("Day 3 Part 1: {}", total);
 }
 
 fn part2(input: &str) {
@@ -36,7 +36,7 @@ fn part2(input: &str) {
         })
         .fold(0, |acc, (l, r)| acc + l * r);
 
-    println!("Day 1 Part 2: {}", total);
+    println!("Day 3 Part 2: {}", total);
 }
 
 fn main() {

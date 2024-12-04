@@ -29,7 +29,7 @@ fn part1(input: &str) {
         .filter(|line| safe_check(line))
         .count();
 
-    println!("Day 1 Part 1: {}", safe_count);
+    println!("Day 2 Part 1: {}", safe_count);
 }
 
 fn part2(input: &str) {
@@ -44,7 +44,7 @@ fn part2(input: &str) {
         })
         .count();
 
-    println!("Day 1 Part 2: {}", safe_count);
+    println!("Day 2 Part 2: {}", safe_count);
 }
 
 fn main() {

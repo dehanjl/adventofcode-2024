@@ -51,7 +51,7 @@ fn part1(input: &str) {
             .count();
     }
 
-    println!("Day 1 Part 1: {:?}", total_xmas);
+    println!("Day 4 Part 1: {:?}", total_xmas);
 }
 
 fn check_diagonal_sam(chars: [Option<&char>; 3]) -> bool {
@@ -85,7 +85,7 @@ fn part2(input: &str) {
         }
     }
 
-    println!("Day 1 Part 2: {}", total_cross_mas);
+    println!("Day 4 Part 2: {}", total_cross_mas);
 }
 
 fn main() {
