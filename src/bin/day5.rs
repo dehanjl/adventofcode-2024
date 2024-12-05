@@ -7,6 +7,13 @@ use itertools::Itertools;
 fn parse_input(input: &str) -> (HashMap<i32, HashSet<i32>>, Vec<Vec<i32>>) {
     let (rules, updates) = input.split_once("\n\n").unwrap();
 
+    /* Rules Map Example:
+       {page_num: {page_nums_after...}}
+       75: {29, 53, 47, 61, 13}
+       61: {13, 53, 29}
+       ...
+    */
+
     let rules_map = rules
         .lines()
         .map(|line| sscanf::sscanf!(line, "{}|{}", i32, i32).unwrap())
