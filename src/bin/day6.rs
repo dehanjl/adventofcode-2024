@@ -8,45 +8,45 @@ type Loc = (usize, usize);
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 enum Dir {
-    NORTH,
-    EAST,
-    SOUTH,
-    WEST,
+    North,
+    East,
+    South,
+    West,
 }
 
 impl Dir {
     fn from_char(ch: char) -> Self {
         match ch {
-            '^' => Dir::NORTH,
-            'v' => Dir::SOUTH,
-            '>' => Dir::EAST,
-            '<' => Dir::WEST,
+            '^' => Dir::North,
+            'v' => Dir::South,
+            '>' => Dir::East,
+            '<' => Dir::West,
             _ => unreachable!(),
         }
     }
 
     fn turn_right(&self) -> Self {
         match self {
-            Dir::NORTH => Dir::EAST,
-            Dir::EAST => Dir::SOUTH,
-            Dir::SOUTH => Dir::WEST,
-            Dir::WEST => Dir::NORTH,
+            Dir::North => Dir::East,
+            Dir::East => Dir::South,
+            Dir::South => Dir::West,
+            Dir::West => Dir::North,
         }
     }
 
     fn step(&self, loc: Loc) -> Loc {
         match self {
-            Dir::NORTH => (loc.0 - 1, loc.1),
-            Dir::SOUTH => (loc.0 + 1, loc.1),
-            Dir::EAST => (loc.0, loc.1 + 1),
-            Dir::WEST => (loc.0, loc.1 - 1),
+            Dir::North => (loc.0 - 1, loc.1),
+            Dir::South => (loc.0 + 1, loc.1),
+            Dir::East => (loc.0, loc.1 + 1),
+            Dir::West => (loc.0, loc.1 - 1),
         }
     }
 }
 
 fn cast_ray(grid: &Grid<char>, loc: &Loc, dir: &Dir) -> (Vec<Loc>, bool) {
     // TODO: pre-compute the rays for each direction, or do recursively
-    let mut loc = loc.clone();
+    let mut loc = *loc;
     let mut ray = Vec::with_capacity(grid.cols() + 1);
     let mut out_of_bounds = false;
     ray.push(loc);
@@ -70,19 +70,19 @@ fn walk(grid: &Grid<char>, starting_pos: &Loc) -> FnvHashSet<Loc> {
     let mut walked_locs =
         FnvHashSet::with_capacity_and_hasher(grid.cols() * grid.rows() / 2, Default::default());
     let (mut loc, mut dir) = (
-        starting_pos.clone(),
+        *starting_pos,
         Dir::from_char(grid[(starting_pos.0, starting_pos.1)]),
     );
 
     loop {
-        let (ray, out_of_bounds) = cast_ray(&grid, &loc, &dir);
+        let (ray, out_of_bounds) = cast_ray(grid, &loc, &dir);
 
         walked_locs.extend(ray.iter());
         if out_of_bounds {
             break;
         }
 
-        loc = ray.last().unwrap().clone();
+        loc = *ray.last().unwrap();
         dir = dir.turn_right();
     }
 
@@ -135,7 +135,7 @@ fn part2(input: &str) {
             );
 
             let (mut loc, mut dir) = (
-                starting_pos.clone(),
+                starting_pos,
                 Dir::from_char(grid[(starting_pos.0, starting_pos.1)]),
             );
 
@@ -147,7 +147,7 @@ fn part2(input: &str) {
                     break;
                 }
 
-                loc = ray.last().unwrap().clone();
+                loc = *ray.last().unwrap();
                 dir = dir.turn_right();
                 // if we were already at this corner, we must be in a loop
                 if !corners.insert((loc, dir)) {

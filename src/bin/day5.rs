@@ -19,7 +19,7 @@ fn parse_input(input: &str) -> (HashMap<i32, HashSet<i32>>, Vec<Vec<i32>>) {
         .map(|line| sscanf::sscanf!(line, "{}|{}", i32, i32).unwrap())
         .into_group_map()
         .iter()
-        .map(|(k, v)| (*k, v.into_iter().map(|x| *x).collect::<HashSet<i32>>()))
+        .map(|(k, v)| (*k, v.iter().copied().collect::<HashSet<i32>>()))
         .collect();
 
     let updates_vec = updates
@@ -40,7 +40,7 @@ fn part1(input: &str) {
     let mut valids = vec![];
     'outer: for v in updates.iter() {
         for (i, vv) in v.iter().enumerate() {
-            let before_set: HashSet<i32> = v[0..i].into_iter().map(|x| *x).collect();
+            let before_set: HashSet<i32> = v[0..i].iter().copied().collect();
             if let Some(rule_set) = rules_map.get(vv) {
                 if rule_set.intersection(&before_set).count() > 0 {
                     continue 'outer;
@@ -61,7 +61,7 @@ fn part2(input: &str) {
     let mut invalids = vec![];
     'outer: for v in updates.iter() {
         for (i, vv) in v.iter().enumerate() {
-            let before_set: HashSet<i32> = v[0..i].into_iter().map(|x| *x).collect();
+            let before_set: HashSet<i32> = v[0..i].iter().copied().collect();
             if let Some(rule_set) = rules_map.get(vv) {
                 if rule_set.intersection(&before_set).count() > 0 {
                     invalids.push(v.clone());
