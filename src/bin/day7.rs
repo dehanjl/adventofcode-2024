@@ -10,6 +10,16 @@ enum Op {
     Cat,
 }
 
+impl Op {
+    fn invoke(&self, a: u64, b: u64) -> u64 {
+        match self {
+            Op::Add => a + b,
+            Op::Mul => a * b,
+            Op::Cat => 10_u64.pow(b.ilog10() + 1) * a + b,
+        }
+    }
+}
+
 fn parse_input(input: &str) -> Vec<(u64, Vec<u64>)> {
     input
         .lines()
@@ -42,11 +52,31 @@ fn compute(vals: &[u64], ops: &[Op]) -> u64 {
     vals[1..]
         .iter()
         .zip_eq(ops.iter())
-        .fold(vals[0], |acc, (val, op)| match op {
-            Op::Add => acc + val,
-            Op::Mul => acc * val,
-            Op::Cat => 10_u64.pow(val.ilog10() + 1) * acc + val,
-        })
+        .fold(vals[0], |acc, (val, op)| op.invoke(acc, *val))
+}
+
+fn compute_recurse(vals: &[u64], op_options: &[Op], target: u64) -> Option<u64> {
+    fn recurse(acc: u64, vals: &[u64], op: Op, op_options: &[Op], target: u64) -> Option<u64> {
+        if acc > target {
+            None
+        } else if vals.is_empty() {
+            (acc == target).then_some(acc)
+        } else {
+            op_options.iter().find_map(|op_inner| {
+                recurse(
+                    op.invoke(acc, vals[0]),
+                    &vals[1..],
+                    *op_inner,
+                    op_options,
+                    target,
+                )
+            })
+        }
+    }
+
+    op_options
+        .iter()
+        .find_map(|op| recurse(vals[0], &vals[1..], *op, op_options, target))
 }
 
 fn part1(input: &str) {
@@ -63,8 +93,18 @@ fn part1(input: &str) {
             })
         })
         .sum();
-
     println!("Day 7 Part 1: {}", total);
+}
+
+fn part1_recurse(input: &str) {
+    let total: u64 = parse_input(input)
+        .par_iter()
+        .filter_map(|(target, components)| {
+            compute_recurse(components, &[Op::Add, Op::Mul], *target)
+        })
+        .sum();
+
+    println!("(recursive) Day 7 Part 1: {}", total);
 }
 
 fn part2(input: &str) {
@@ -87,7 +127,20 @@ fn part2(input: &str) {
     println!("Day 7 Part 2: {}", total);
 }
 
+fn part2_recurse(input: &str) {
+    let total: u64 = parse_input(input)
+        .par_iter()
+        .filter_map(|(target, components)| {
+            compute_recurse(components, &[Op::Add, Op::Mul, Op::Cat], *target)
+        })
+        .sum();
+
+    println!("(recursive) Day 7 Part 2: {}", total);
+}
+
 fn main() {
     runner(part1);
+    runner(part1_recurse);
     runner(part2);
+    runner(part2_recurse);
 }
