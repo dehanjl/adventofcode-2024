@@ -14,13 +14,6 @@ impl std::ops::Add for Loc {
     }
 }
 
-impl std::ops::Mul<isize> for Loc {
-    type Output = Self;
-    fn mul(self, rhs: isize) -> Self {
-        Loc(self.0 * rhs, self.1 * rhs)
-    }
-}
-
 impl std::ops::Sub for Loc {
     type Output = Self;
     fn sub(self, rhs: Self) -> Self {
