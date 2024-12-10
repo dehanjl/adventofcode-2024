@@ -7,6 +7,8 @@ use std::{env, fs};
 use anyhow::Result;
 use reqwest::header::COOKIE;
 
+pub mod utils;
+
 #[derive(Parser)]
 struct Opt {
     #[arg(short, long)]

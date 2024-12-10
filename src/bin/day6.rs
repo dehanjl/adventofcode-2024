@@ -1,20 +1,18 @@
-use adventofcode_2024::runner;
+use adventofcode_2024::{
+    runner,
+    utils::{Dir, Loc},
+};
 use fnv::FnvHashSet;
 use grid::Grid;
 use itertools::Itertools;
 use rayon::iter::{ParallelBridge, ParallelIterator};
 
-type Loc = (usize, usize);
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-enum Dir {
-    North,
-    East,
-    South,
-    West,
+trait DirUse {
+    fn from_char(ch: char) -> Self;
+    fn turn_right(&self) -> Self;
 }
 
-impl Dir {
+impl DirUse for Dir {
     fn from_char(ch: char) -> Self {
         match ch {
             '^' => Dir::North,
@@ -31,15 +29,7 @@ impl Dir {
             Dir::East => Dir::South,
             Dir::South => Dir::West,
             Dir::West => Dir::North,
-        }
-    }
-
-    fn step(&self, loc: Loc) -> Loc {
-        match self {
-            Dir::North => (loc.0 - 1, loc.1),
-            Dir::South => (loc.0 + 1, loc.1),
-            Dir::East => (loc.0, loc.1 + 1),
-            Dir::West => (loc.0, loc.1 - 1),
+            _ => unreachable!(),
         }
     }
 }
@@ -51,7 +41,7 @@ fn cast_ray(grid: &Grid<char>, loc: &Loc, dir: &Dir) -> (Vec<Loc>, bool) {
     let mut out_of_bounds = false;
     ray.push(loc);
     loop {
-        loc = dir.step(loc);
+        loc = loc + *dir;
         match grid.get(loc.0, loc.1) {
             Some('#') | Some('O') => break,
             Some(_) => {
@@ -69,10 +59,7 @@ fn cast_ray(grid: &Grid<char>, loc: &Loc, dir: &Dir) -> (Vec<Loc>, bool) {
 fn walk(grid: &Grid<char>, starting_pos: &Loc) -> FnvHashSet<Loc> {
     let mut walked_locs =
         FnvHashSet::with_capacity_and_hasher(grid.cols() * grid.rows() / 2, Default::default());
-    let (mut loc, mut dir) = (
-        *starting_pos,
-        Dir::from_char(grid[(starting_pos.0, starting_pos.1)]),
-    );
+    let (mut loc, mut dir) = (*starting_pos, Dir::from_char(grid[(*starting_pos).into()]));
 
     loop {
         let (ray, out_of_bounds) = cast_ray(grid, &loc, &dir);
@@ -102,7 +89,8 @@ fn parse_input(input: &str) -> (Grid<char>, Loc) {
                 None
             }
         })
-        .unwrap();
+        .unwrap()
+        .into();
     (Grid::from_vec(chars, cols), loc)
 }
 
@@ -124,7 +112,7 @@ fn part2(input: &str) {
         .par_bridge()
         .filter_map(|&pos| {
             let mut new_grid = grid.clone();
-            new_grid[pos] = 'O';
+            new_grid[pos.into()] = 'O';
             let mut corners: FnvHashSet<(Loc, Dir)> = FnvHashSet::with_capacity_and_hasher(
                 grid.cols() * grid.rows() / 4,
                 Default::default(),
@@ -134,10 +122,7 @@ fn part2(input: &str) {
                 Default::default(),
             );
 
-            let (mut loc, mut dir) = (
-                starting_pos,
-                Dir::from_char(grid[(starting_pos.0, starting_pos.1)]),
-            );
+            let (mut loc, mut dir) = (starting_pos, Dir::from_char(grid[starting_pos.into()]));
 
             loop {
                 let (ray, out_of_bounds) = cast_ray(&new_grid, &loc, &dir);
