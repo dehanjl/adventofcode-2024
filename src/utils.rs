@@ -1,3 +1,7 @@
+use grid::Grid;
+use hashbrown::HashSet;
+use itertools::Itertools;
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 /// A location on a (rows, cols) 2D grid.
 /// `Loc(0, 0)` is top left;
@@ -102,3 +106,51 @@ pub const DIR8: [Dir; 8] = [
     Dir::West,
     Dir::NorthWest,
 ];
+
+pub trait GridUtils<T> {
+    fn parse(input: &str) -> Self
+    where
+        T: From<char>;
+
+    fn find_first<P>(&self, predicate: P) -> Option<Loc>
+    where
+        P: Fn(&T) -> bool;
+
+    fn find_set<P>(&self, predicate: P) -> HashSet<Loc>
+    where
+        P: Fn(&T) -> bool;
+}
+
+impl<T> GridUtils<T> for Grid<T>
+where
+    T: From<char>,
+{
+    fn parse(input: &str) -> Self {
+        let cols = input.lines().next().unwrap().len();
+        let chars = input
+            .lines()
+            .flat_map(|line| line.chars())
+            .map(T::from)
+            .collect();
+        Grid::from_vec(chars, cols)
+    }
+
+    fn find_first<P>(&self, predicate: P) -> Option<Loc>
+    where
+        P: Fn(&T) -> bool,
+    {
+        self.iter()
+            .position(predicate)
+            .map(|i| (i / self.cols(), i % self.cols()).into())
+    }
+
+    fn find_set<P>(&self, predicate: P) -> HashSet<Loc>
+    where
+        P: Fn(&T) -> bool,
+    {
+        self.iter()
+            .positions(predicate)
+            .map(|i| (i / self.cols(), i % self.cols()).into())
+            .collect()
+    }
+}

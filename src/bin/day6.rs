@@ -1,10 +1,9 @@
 use adventofcode_2024::{
     runner,
-    utils::{Dir, Loc},
+    utils::{Dir, GridUtils, Loc},
 };
 use fnv::FnvHashSet;
 use grid::Grid;
-use itertools::Itertools;
 use rayon::iter::{ParallelBridge, ParallelIterator};
 
 trait DirUse {
@@ -77,21 +76,11 @@ fn walk(grid: &Grid<char>, starting_pos: &Loc) -> FnvHashSet<Loc> {
 }
 
 fn parse_input(input: &str) -> (Grid<char>, Loc) {
-    let cols = input.lines().next().unwrap().len();
-    let chars = input.lines().flat_map(|line| line.chars()).collect_vec();
-    let loc = chars
-        .iter()
-        .enumerate()
-        .find_map(|(i, &ch)| {
-            if ch == '^' || ch == 'v' || ch == '<' || ch == '>' {
-                Some((i / cols, i % cols))
-            } else {
-                None
-            }
-        })
-        .unwrap()
-        .into();
-    (Grid::from_vec(chars, cols), loc)
+    let grid = Grid::parse(input);
+    let loc = grid
+        .find_first(|&c| c == '^' || c == 'v' || c == '<' || c == '>')
+        .unwrap();
+    (grid, loc)
 }
 
 fn part1(input: &str) {
